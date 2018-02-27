@@ -15,8 +15,11 @@
  */
 package io.fabric8.quickstarts.camel.drools;
 
+import org.kie.camel.KieComponent;
+import org.kie.camel.KieConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
 
 
@@ -26,6 +29,15 @@ public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
+    }
+
+    @Bean(name = "kie-component")
+    public KieComponent kieComponent() {
+        KieConfiguration configuration = new KieConfiguration();
+        configuration.setUsername("kieserver");
+        configuration.setUsername("Thepassword1!");
+
+        return new KieComponent(configuration);
     }
 
 }

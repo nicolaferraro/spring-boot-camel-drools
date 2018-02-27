@@ -15,22 +15,23 @@
  */
 package io.fabric8.quickstarts.camel.drools;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
+import com.thoughtworks.xstream.XStream;
 import io.fabric8.quickstarts.camel.drools.model.Greeting;
 import io.fabric8.quickstarts.camel.drools.model.Person;
-
 import org.kie.api.KieServices;
 import org.kie.api.command.BatchExecutionCommand;
 import org.kie.api.command.Command;
 import org.kie.api.command.KieCommands;
-import org.kie.api.runtime.ExecutionResults;
+import org.kie.api.executor.ExecutionResults;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
+import org.kie.internal.runtime.helper.BatchExecutionHelper;
 import org.kie.server.api.model.ServiceResponse;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 @Component
 public class DecisionServerHelper {
@@ -40,8 +41,10 @@ public class DecisionServerHelper {
     /** The random. */
     private final Random random = new Random();
 
+    private XStream xStream = BatchExecutionHelper.newXStreamMarshaller();
 
-    public BatchExecutionCommand createRandomCommand() {
+
+    public String createRandomCommand() {
         Person person = new Person();
         String name = NAMES[random.nextInt(NAMES.length)];
         person.setName(name);
@@ -52,14 +55,15 @@ public class DecisionServerHelper {
         cmds.add(commands.newFireAllRules());
         cmds.add(commands.newQuery("greetings", "get greeting"));
         BatchExecutionCommand command = commands.newBatchExecution(cmds, "HelloRulesSession");
-        return command;
+
+        return xStream.toXML(command);
     }
 
     public Greeting extractResult(ServiceResponse<ExecutionResults> response) {
         ExecutionResults res = response.getResult();
         Greeting greeting = null;
         if (res != null) {
-            QueryResults queryResults = (QueryResults) res.getValue("greetings");
+            QueryResults queryResults = (QueryResults) res.getData("greetings");
             for (QueryResultsRow queryResult : queryResults) {
                 greeting = (Greeting) queryResult.get("greeting");
                 break;

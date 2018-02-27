@@ -2,44 +2,68 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd        http://camel.apache.org/schema/spring       http://camel.apache.org/schema/spring/camel-spring.xsd">
     <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
-        <!--
-            A route that creates periodically random Persons and send them to the kie server.
-            Objects are wrapped in a batch command that includes also a query to get a Greeting from the kie server.
-            The Greeting is printed to the log.
-         -->
+
         <route id="test-route" trace="false">
             <description>Example route that will regularly create a Person and send it to the Kie Server to get a greeting</description>
             <!-- Using the route defined below to send commands to the kie server and get the responses -->
-            <from id="route-timer" uri="timer:testRoute?period=10s"/>
-            <bean id="route-new-command" method="createRandomCommand" ref="decisionServerHelper"/>
-            <to id="route-to-decision-server-rest" uri="direct:decisionserver"/>
-            <bean id="route-extract-result" method="extractResult" ref="decisionServerHelper"/>
-            <log id="route-log-result" message="${body.salutation}"/>
+            <from id="route-timer" uri="timer:testRoute?period=3s"/>
+            <setHeader headerName="CamelKieClient">
+                <constant>rule</constant>
+            </setHeader>
+            <setHeader headerName="CamelKieOperation">
+                <constant>executeCommandsWithResults</constant>
+            </setHeader>
+            <setHeader headerName="CamelKieId">
+                <constant>decisionserver-hellorules</constant>
+            </setHeader>
+            <setHeader headerName="CamelKiePayload">
+                <method bean="decisionServerHelper" method="createRandomCommand"/>
+            </setHeader>
+            <!--<bean id="route-new-command" method="createRandomCommand" ref="decisionServerHelper"/>-->
+            <to uri="kie:http://{{kieserver.username}}:{{kieserver.password}}@{{service:{{kieserver.service}}:{{kieserver.devel-service}}}}/kie-server/services/rest/server"/>
+            <!--<to id="route-to-decision-server-rest" uri="direct:decisionserver"/>-->
+            <!--<bean id="route-extract-result" method="extractResult" ref="decisionServerHelper"/>-->
+            <log id="route-log-result" message="${body}"/>
         </route>
-        <!--
-            The following route is used as sub-route to send generic commands to the kie server.
-        -->
-        <route id="decision-server-rest" trace="false">
-            <!-- Using the xstream marshalling -->
-            <from id="route-from-decision-server-rest" uri="direct:decisionserver"/>
-            <setHeader headerName="CamelHttpMethod" id="header-post">
-                <constant>POST</constant>
-            </setHeader>
-            <!-- Using the xstream marshalling -->
-            <setHeader headerName="Content-Type" id="route-header-content-type">
-                <constant>application/xml</constant>
-            </setHeader>
-            <setHeader headerName="X-KIE-ContentType" id="route-header-kie-content-type">
-                <constant>xstream</constant>
-            </setHeader>
-            <marshal id="route-marshal">
-                <xstream/>
-            </marshal>
-            <to id="to-http-rest" uri="http://{{service:{{kieserver.service}}:{{kieserver.devel-service}}}}/{{kieserver.path}}?authMethod=Basic&amp;authUsername={{kieserver.username}}&amp;authPassword={{kieserver.password}}"/>
-            <!-- Unmarshal the response -->
-            <unmarshal id="route-unmarshal">
-                <xstream/>
-            </unmarshal>
-        </route>
+
+        <!--&lt;!&ndash;-->
+            <!--A route that creates periodically random Persons and send them to the kie server.-->
+            <!--Objects are wrapped in a batch command that includes also a query to get a Greeting from the kie server.-->
+            <!--The Greeting is printed to the log.-->
+         <!--&ndash;&gt;-->
+        <!--<route id="test-route" trace="false">-->
+            <!--<description>Example route that will regularly create a Person and send it to the Kie Server to get a greeting</description>-->
+            <!--&lt;!&ndash; Using the route defined below to send commands to the kie server and get the responses &ndash;&gt;-->
+            <!--<from id="route-timer" uri="timer:testRoute?period=10s"/>-->
+            <!--<bean id="route-new-command" method="createRandomCommand" ref="decisionServerHelper"/>-->
+            <!--<to id="route-to-decision-server-rest" uri="direct:decisionserver"/>-->
+            <!--<bean id="route-extract-result" method="extractResult" ref="decisionServerHelper"/>-->
+            <!--<log id="route-log-result" message="${body.salutation}"/>-->
+        <!--</route>-->
+        <!--&lt;!&ndash;-->
+            <!--The following route is used as sub-route to send generic commands to the kie server.-->
+        <!--&ndash;&gt;-->
+        <!--<route id="decision-server-rest" trace="false">-->
+            <!--&lt;!&ndash; Using the xstream marshalling &ndash;&gt;-->
+            <!--<from id="route-from-decision-server-rest" uri="direct:decisionserver"/>-->
+            <!--<setHeader headerName="CamelHttpMethod" id="header-post">-->
+                <!--<constant>POST</constant>-->
+            <!--</setHeader>-->
+            <!--&lt;!&ndash; Using the xstream marshalling &ndash;&gt;-->
+            <!--<setHeader headerName="Content-Type" id="route-header-content-type">-->
+                <!--<constant>application/xml</constant>-->
+            <!--</setHeader>-->
+            <!--<setHeader headerName="X-KIE-ContentType" id="route-header-kie-content-type">-->
+                <!--<constant>xstream</constant>-->
+            <!--</setHeader>-->
+            <!--<marshal id="route-marshal">-->
+                <!--<xstream/>-->
+            <!--</marshal>-->
+            <!--<to id="to-http-rest" uri="http://{{service:{{kieserver.service}}:{{kieserver.devel-service}}}}/{{kieserver.path}}?authMethod=Basic&amp;authUsername={{kieserver.username}}&amp;authPassword={{kieserver.password}}"/>-->
+            <!--&lt;!&ndash; Unmarshal the response &ndash;&gt;-->
+            <!--<unmarshal id="route-unmarshal">-->
+                <!--<xstream/>-->
+            <!--</unmarshal>-->
+        <!--</route>-->
     </camelContext>
 </beans>

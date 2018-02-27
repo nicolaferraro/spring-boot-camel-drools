@@ -31,7 +31,7 @@
 
         <!-- dependency versions -->
         <fabric8.version>2.3.2</fabric8.version>
-        <drools.version>6.4.0.Final</drools.version>
+        <drools.version>7.6.0.Final</drools.version>
         <spring-boot.version>1.5.4.RELEASE</spring-boot.version>
 
         <!-- maven plugin versions -->
@@ -54,6 +54,13 @@
 
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-camel</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -78,14 +85,20 @@
             <artifactId>camel-http-starter</artifactId>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>org.apache.camel</groupId>-->
+            <!--<artifactId>camel-xstream-starter</artifactId>-->
+        <!--</dependency>-->
+
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-xstream-starter</artifactId>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.4.10</version>
         </dependency>
 
         <dependency>
             <groupId>org.kie.server</groupId>
-            <artifactId>kie-server-client</artifactId>
+            <artifactId>kie-server-services-common</artifactId>
             <version>${drools.version}</version>
         </dependency>
 
