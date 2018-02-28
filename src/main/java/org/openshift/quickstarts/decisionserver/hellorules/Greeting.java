@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.quickstarts.camel.drools.model;
+package org.openshift.quickstarts.decisionserver.hellorules;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -23,25 +23,25 @@ import javax.xml.bind.annotation.XmlType;
 
 @SuppressWarnings("serial")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "person", propOrder = {"name"})
-@XmlRootElement(name = "person")
-public class Person implements Serializable {
+@XmlType(name = "greeting", propOrder = {"salutation"})
+@XmlRootElement(name = "greeting")
+public class Greeting implements Serializable {
 
-    private String name;
+    private String salutation;
 
-    public Person() {
+    public Greeting() {
     }
 
-    public Person(String name) {
-        setName(name);
+    public Greeting(String salutation) {
+        setSalutation(salutation);
     }
 
-    public String getName() {
-        return name;
+    public String getSalutation() {
+        return salutation;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setSalutation(String salutation) {
+        this.salutation = salutation;
     }
 
 }

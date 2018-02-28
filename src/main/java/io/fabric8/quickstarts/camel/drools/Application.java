@@ -17,10 +17,16 @@ package io.fabric8.quickstarts.camel.drools;
 
 import org.kie.camel.KieComponent;
 import org.kie.camel.KieConfiguration;
+import org.openshift.quickstarts.decisionserver.hellorules.Greeting;
+import org.openshift.quickstarts.decisionserver.hellorules.Person;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 @SpringBootApplication
@@ -32,10 +38,17 @@ public class Application {
     }
 
     @Bean(name = "kie-component")
-    public KieComponent kieComponent() {
+    public KieComponent kieComponent(@Value("${kieserver.username}") String username, @Value("${kieserver.password}") String password) {
         KieConfiguration configuration = new KieConfiguration();
-        configuration.setUsername("kieserver");
-        configuration.setUsername("Thepassword1!");
+        configuration.setUsername(username);
+        configuration.setPassword(password);
+        configuration.setKieServicesConfigurationCustomizer(serviceConfig -> {
+            Set<Class<?>> extraClasses = new HashSet<>();
+            extraClasses.add(Greeting.class);
+            extraClasses.add(Person.class);
+            serviceConfig.addExtraClasses(extraClasses);
+            return serviceConfig;
+        });
 
         return new KieComponent(configuration);
     }

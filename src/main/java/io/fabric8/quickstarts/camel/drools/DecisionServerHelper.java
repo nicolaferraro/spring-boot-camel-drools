@@ -15,18 +15,15 @@
  */
 package io.fabric8.quickstarts.camel.drools;
 
-import com.thoughtworks.xstream.XStream;
-import io.fabric8.quickstarts.camel.drools.model.Greeting;
-import io.fabric8.quickstarts.camel.drools.model.Person;
+import org.drools.core.runtime.impl.ExecutionResultImpl;
 import org.kie.api.KieServices;
 import org.kie.api.command.BatchExecutionCommand;
 import org.kie.api.command.Command;
 import org.kie.api.command.KieCommands;
-import org.kie.api.executor.ExecutionResults;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
-import org.kie.internal.runtime.helper.BatchExecutionHelper;
-import org.kie.server.api.model.ServiceResponse;
+import org.openshift.quickstarts.decisionserver.hellorules.Greeting;
+import org.openshift.quickstarts.decisionserver.hellorules.Person;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -41,10 +38,8 @@ public class DecisionServerHelper {
     /** The random. */
     private final Random random = new Random();
 
-    private XStream xStream = BatchExecutionHelper.newXStreamMarshaller();
 
-
-    public String createRandomCommand() {
+    public BatchExecutionCommand createRandomCommand() {
         Person person = new Person();
         String name = NAMES[random.nextInt(NAMES.length)];
         person.setName(name);
@@ -54,16 +49,14 @@ public class DecisionServerHelper {
         cmds.add(commands.newInsert(person));
         cmds.add(commands.newFireAllRules());
         cmds.add(commands.newQuery("greetings", "get greeting"));
-        BatchExecutionCommand command = commands.newBatchExecution(cmds, "HelloRulesSession");
 
-        return xStream.toXML(command);
+        return commands.newBatchExecution(cmds, "HelloRulesSession");
     }
 
-    public Greeting extractResult(ServiceResponse<ExecutionResults> response) {
-        ExecutionResults res = response.getResult();
+    public Greeting extractResult(ExecutionResultImpl res) {
         Greeting greeting = null;
         if (res != null) {
-            QueryResults queryResults = (QueryResults) res.getData("greetings");
+            QueryResults queryResults = (QueryResults) res.getValue("greetings");
             for (QueryResultsRow queryResult : queryResults) {
                 greeting = (Greeting) queryResult.get("greeting");
                 break;
